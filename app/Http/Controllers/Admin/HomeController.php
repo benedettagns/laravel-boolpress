@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Adimi;
+namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -26,11 +26,6 @@ class HomeController extends Controller
     public function index()
     {
         $user = Auth::user();
-
-        if(Auth::check()) {
-            
-        }
-
         return view('admin.home');
     }
 }
