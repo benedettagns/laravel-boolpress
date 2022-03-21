@@ -23,12 +23,10 @@ Route::middleware("auth")
     ->group(function() {
         Route::get('/', 'HomeController@index')->name('home');
         Route::get('/products', 'ProductController@index')->name('product.index');
-        Route::get('/create', 'ProductController@index')->name('product.create');
-        Route::get('/edit', 'ProductController@index')->name('product.edit');
-        Route::get('/posts', 'PostController@index')->name('post.index');
-        Route::get('/posts/create', 'PostController@index')->name('post.create');
-        Route::get('/posts/edit', 'PostController@index')->name('post.edit');
-    });
+        Route::get('/products/create', 'ProductController@index')->name('product.create');
+        Route::get('/products/edit', 'ProductController@index')->name('product.edit');
+        Route::resource("posts", "PostController");
+});
 
 Route::get("{any?}", function() {
     return view("guest.home");
