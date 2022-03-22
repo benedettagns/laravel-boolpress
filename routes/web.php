@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
 
 /*
 |--------------------------------------------------------------------------
@@ -29,5 +30,5 @@ Route::middleware("auth")
 });
 
 Route::get("{any?}", function() {
-    return view("guest.home");
+    return view("home");
 })->where("any", ".*");

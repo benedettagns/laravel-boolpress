@@ -3,10 +3,11 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Post;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 
-class PostController extends Controller
-{
+class PostController extends Controller {
     /**
      * Display a listing of the resource.
      *
@@ -25,7 +26,7 @@ class PostController extends Controller
      */
     public function create()
     {
-        //
+        return view("admin.posts.create");
     }
 
     /**
@@ -36,7 +37,33 @@ class PostController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $data = $request->validate( [
+            "title" => "required|min:5",
+            "content" => "required|min:20",
+        ]);
+
+        $post = new Post();
+        $post->fill($data);
+
+        $slug = Str::slug($post->title);
+
+        $exists = Post::where("slug", $slug)->first();
+        $counter = 1;
+
+        while ($exists) {
+            $newSlug = $slug . "-" . $counter;
+            $counter++;
+
+            $exists = Post::where("slug", $newSlug)->first();
+
+            if (!$exists) {
+                $slug = $newSlug;
+            }
+        }
+
+        $post->slug = $slug;
+        $post->save();
+        return redirect()->route("admin.posts.index");
     }
 
     /**
@@ -45,9 +72,11 @@ class PostController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show($slug)
     {
-        //
+        $post = Post::where("slug", $slug)->fisrt();
+
+        return view("admin.post.show", compact("post"));
     }
 
     /**
@@ -70,7 +99,19 @@ class PostController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $data = $request->validate([
+            "title" => "required|min:5", 
+            "content" => "required|min:20"
+        ]);
+
+        $post = Post::findOrFail($id);
+
+        if ($data["title"] !== $post->title) {
+            $data["slug"] = $this->generateUniqueSlug($data["title"]);
+        }
+
+        $post->update($data);
+        return redirect()->route("admin.posts.show", $post->id);
     }
 
     /**
@@ -82,5 +123,25 @@ class PostController extends Controller
     public function destroy($id)
     {
         //
+    }
+
+    protected function generateUniqueSlug($postTitle) {
+        $slug = Str::slug($postTitle);
+
+        $exists = Post::where("slug", $slug)->first();
+
+        $counter = 1;
+        
+        while($exists) {
+            $newSlug = $slug . "-" . $counter;
+            $counter++;
+
+            $exists = Post::where("slug", $newSlug)->first();
+
+            if (!$exists) {
+                $slug = $newSlug;
+            }
+        }
+        return $slug;
     }
 }
