@@ -27,6 +27,7 @@ Route::middleware("auth")
         Route::get('/products/create', 'ProductController@index')->name('product.create');
         Route::get('/products/edit', 'ProductController@index')->name('product.edit');
         Route::resource("posts", "PostController");
+        Route::get("users", "UserController@index")->name("users.index");
 });
 
 Route::get("{any?}", function() {
