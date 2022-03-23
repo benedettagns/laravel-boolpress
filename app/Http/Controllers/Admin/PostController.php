@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Category;
 use App\Http\Controllers\Controller;
 use App\Post;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class PostController extends Controller {
     /**
@@ -15,7 +18,7 @@ class PostController extends Controller {
      */
     public function index()
     {
-        $posts = Post::all();
+        $posts = Post::where("user_id", Auth::user()->id)->get();
         return view("admin.post.index", compact("posts"));
     }
 
@@ -26,7 +29,10 @@ class PostController extends Controller {
      */
     public function create()
     {
-        return view("admin.posts.create");
+        $categories = Category::all();
+
+        return view("admin.posts.create", compact("categories"));
+
     }
 
     /**
@@ -40,6 +46,7 @@ class PostController extends Controller {
         $data = $request->validate( [
             "title" => "required|min:5",
             "content" => "required|min:20",
+            "category_id" => "nullable"
         ]);
 
         $post = new Post();
@@ -62,6 +69,7 @@ class PostController extends Controller {
         }
 
         $post->slug = $slug;
+        $post->user_id = Auth::user()->id;
         $post->save();
         return redirect()->route("admin.posts.index");
     }
@@ -88,7 +96,12 @@ class PostController extends Controller {
     public function edit($slug)
     {
         $post = Post::where("slug", $slug)->first();
-        return view("admin.posts.edit", compact("post"));
+
+        $categories = Category::all();
+        return view("admin.posts.edit", [
+            "post" => $post, 
+            "categories" => $categories,
+        ]);
     }
 
     /**
@@ -102,7 +115,8 @@ class PostController extends Controller {
     {
         $data = $request->validate([
             "title" => "required|min:5", 
-            "content" => "required|min:20"
+            "content" => "required|min:20",
+            "category_id" => "nullable",
         ]);
 
         $post = Post::findOrFail($id);
