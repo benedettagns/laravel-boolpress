@@ -17,9 +17,9 @@ class PostController extends Controller
      */
     public function index()
     {
-        $posts = Post::all();
+        $posts = Post::paginate(5);
 
-        return response()->json($posts);
+        $posts->load("user", "category");
     }
 
     /**
@@ -67,7 +67,8 @@ class PostController extends Controller
      */
     public function show($id)
     {
-        $post = Post::where("id", $id)->with(["tags", "user", "category"])->first();
+        $post = Post::findOrFail($id);
+        $post->load("user");
         return response()->json($post);
     }
 
