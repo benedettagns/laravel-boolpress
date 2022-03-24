@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\User;
+use App\InfoUser;
 use Illuminate\Http\Request;
 
 class UserController extends Controller
@@ -26,7 +27,7 @@ class UserController extends Controller
      */
     public function create()
     {
-        //
+        return redirect()->route("admin.users.index");
     }
 
     /**
@@ -37,7 +38,7 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        return redirect()->route("admin.users.index");
     }
 
     /**
@@ -46,9 +47,9 @@ class UserController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(User $user)
     {
-        //
+        return view("admin.users.show", compact("user"));
     }
 
     /**
@@ -71,7 +72,26 @@ class UserController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $user = User::findOrFail($id);
+        $data = $request->validate([
+            "name" => "required|min:2", 
+            "email" => "required|email|unique:users,email" . $id,
+            "phone" => "nullable",
+            "address" => "nullable",
+            "avatar" => "nullable"
+        ]);
+
+        $user->update($data);
+
+        if (!$user->infoUser) {
+            $infoUser = new InfoUser();
+            $infoUser->fill($data);
+            $user->infoUser()->save($infoUser);
+        } else {
+            $user->infoUser->fill($data);
+            $user->infoUser->save();
+        }
+        return redirect()->route("admin.users.show", $user->id);
     }
 
     /**

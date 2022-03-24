@@ -149,6 +149,7 @@ class PostController extends Controller {
         $post = Post::findOrFail($id);
         $post->tags()->detach();
         $post->delete();
+        return redirect()->route("admin.post.index");
     }
 
     protected function generateUniqueSlug($postTitle) {
